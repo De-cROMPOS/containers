@@ -66,7 +66,7 @@ window.addEventListener('DOMContentLoaded', function() {
             },
             body: JSON.stringify(payload)
         })
-        .then(function(response) {
+        .then(async function(response) {
             if (response.ok) {
                 alert('Данные успешно отправлены!');
                 // Очищаем форму
@@ -76,7 +76,26 @@ window.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('i85063ziw_0').value = '';
                 document.getElementById('i42wx0z6u_0').checked = false;
             } else {
-                alert('Ошибка при отправке данных.');
+                let data = {};
+                try {
+                    data = await response.json();
+                } catch (e) {}
+                if (data.errors) {
+                    let messages = [];
+                    if (data.errors.phonenumber) {
+                        messages.push(data.errors.phonenumber);
+                    }
+                    if (data.errors.mail) {
+                        messages.push(data.errors.mail);
+                    }
+                    if (messages.length > 0) {
+                        alert(messages.join('\n'));
+                    } else {
+                        alert('Ошибка при отправке данных.');
+                    }
+                } else {
+                    alert('Ошибка при отправке данных.');
+                }
             }
         })
         .catch(function(error) {

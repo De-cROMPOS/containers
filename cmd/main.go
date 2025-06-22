@@ -10,6 +10,7 @@ import (
 	"net/mail"
 	"net/smtp"
 	"os"
+	"regexp"
 	"unicode/utf8"
 
 	"github.com/joho/godotenv"
@@ -51,27 +52,45 @@ func mailPoster(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
- bodyBytes, err := io.ReadAll(r.Body)
-    if err != nil {
-        http.Error(w, "Ошибка чтения тела запроса", http.StatusBadRequest)
-        return
-    }
+	bodyBytes, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Ошибка чтения тела запроса", http.StatusBadRequest)
+		return
+	}
 
-    var utf8Bytes []byte
-    if utf8.Valid(bodyBytes) { // Utf- 8
-        utf8Bytes = bodyBytes
-    } else { // Если Windows-1251
-        decoder := charmap.Windows1251.NewDecoder()
-        utf8Bytes, err = decoder.Bytes(bodyBytes)
-        if err != nil {
-            http.Error(w, "Ошибка декодирования текста", http.StatusBadRequest)
-            return
-        }
-    }
+	var utf8Bytes []byte
+	if utf8.Valid(bodyBytes) { // Utf- 8
+		utf8Bytes = bodyBytes
+	} else { // Если Windows-1251
+		decoder := charmap.Windows1251.NewDecoder()
+		utf8Bytes, err = decoder.Bytes(bodyBytes)
+		if err != nil {
+			http.Error(w, "Ошибка декодирования текста", http.StatusBadRequest)
+			return
+		}
+	}
 
 	var req MailRequest
 	if err := json.Unmarshal(utf8Bytes, &req); err != nil {
 		http.Error(w, "JSON не анмаршнулся: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Валидация
+	errors := make(map[string]string)
+	// Валидация телефона
+	phonePattern := `^[\d\s\+\-\(\)]+$`
+	if len(req.PhoneNumber) < 7 || !regexp.MustCompile(phonePattern).MatchString(req.PhoneNumber) {
+		errors["phonenumber"] = "Неверный формат телефона"
+	}
+	// Валидация email
+	if _, err := mail.ParseAddress(req.Mail); err != nil {
+		errors["mail"] = "Некорректный email"
+	}
+	if len(errors) > 0 {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]interface{}{"errors": errors})
 		return
 	}
 
