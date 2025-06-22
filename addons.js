@@ -102,4 +102,27 @@ window.addEventListener('DOMContentLoaded', function() {
             alert('Ошибка соединения: ' + error);
         });
     });
+
+    // Открытие формы по клику на карточку контейнера (отменяем переход по ссылке и всегда открываем форму)
+    var containerCards = document.querySelectorAll('.list__item--u-i98suif6b');
+    var popup = document.getElementById('i08eth00c_0');
+    if (popup && containerCards.length) {
+        containerCards.forEach(function(card) {
+            card.addEventListener('click', function(e) {
+                var link = e.target.closest('a');
+                if (link) {
+                    e.preventDefault();
+                }
+                popup.classList.remove('is-removed');
+                popup.style.display = 'block';
+
+                // Динамическое определение типа контейнера для комментария
+                var typeElem = card.querySelector('.text--u-ir056f1uk .text-block-wrap-div');
+                var commentInput = document.getElementById('i85063ziw_0');
+                if (commentInput && typeElem) {
+                    commentInput.value = 'Интересует контейнер: ' + typeElem.textContent.trim();
+                }
+            });
+        });
+    }
 }); 
