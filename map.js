@@ -4,16 +4,16 @@
     function initMap() {
         // Создаем карту
         var myMap = new ymaps.Map('ymap', {
-            center: [55.679514, 37.267847], // Координаты центра карты (Одинцово)
+            center: [55.657296, 37.261786], // Координаты центра карты (Одинцово)
             zoom: 15,
             controls: ['zoomControl', 'fullscreenControl']
         });
 
         // Создаем метку
-        var myPlacemark = new ymaps.Placemark([55.679514, 37.267847], {
+        var myPlacemark = new ymaps.Placemark([55.657296, 37.261786], {
             balloonContentHeader: 'Наш офис',
             balloonContentBody: 'г. Одинцово',
-            balloonContentFooter: '<a href="tel:+7(777)0000000">+7 (777) 000-00-00</a>'
+            balloonContentFooter: '<a href="tel:+7(928)3539505">+7 (928) 353-95-05</a>'
         }, {
             preset: 'islands#redDotIcon'
         });
